@@ -1,0 +1,45 @@
+{
+  "name": "responsive-image-generator",
+  "displayName": "Responsive Image Generator",
+  "description": "Add new item, prompt for image, resize and save images with specified dimensions.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:html",
+    "onLanguage:markdown",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:vue",
+    "onLanguage:angular"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "responsive-image-generator.generate",
+        "title": "Generate Responsive Image"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.104.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.34.0"
+  },
+  "dependencies": {
+    "sharp": "^0.34.3"
+  }
+}
