@@ -1,5 +1,5 @@
 {
-  "name": "responsive-image-generator.vs-code",
+  "name": "responsive-image-generator",
   "displayName": "Responsive Image Generator",
   "description": "Generate responsive images in multiple sizes for web development. Works inline in the text editor.",
   "version": "1.0.0",
