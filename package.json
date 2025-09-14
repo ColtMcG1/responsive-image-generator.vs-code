@@ -3,6 +3,11 @@
   "displayName": "Responsive Image Generator",
   "description": "Add new item, prompt for image, resize and save images with specified dimensions.",
   "version": "0.0.1",
+  "publisher": "ColtMcG0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ColtMcG0/responsive-image-generator"
+  },
   "engines": {
     "vscode": "^1.104.0"
   },
