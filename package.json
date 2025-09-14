@@ -1,8 +1,8 @@
 {
-  "name": "responsive-image-generator",
+  "name": "responsive-image-generator.vs-code",
   "displayName": "Responsive Image Generator",
   "description": "Generate responsive images in multiple sizes for web development. Works inline in the text editor.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "Colton McGraw",
   "repository": {
     "type": "git",
