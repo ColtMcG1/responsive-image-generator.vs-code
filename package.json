@@ -1,12 +1,12 @@
 {
   "name": "responsive-image-generator",
   "displayName": "Responsive Image Generator",
-  "description": "Add new item, prompt for image, resize and save images with specified dimensions.",
+  "description": "Generate responsive images in multiple sizes for web development. Works inline in the text editor.",
   "version": "0.0.1",
-  "publisher": "ColtMcG0",
+  "publisher": "Colton McGraw",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ColtMcG0/responsive-image-generator"
+    "url": "https://github.com/ColtMcG0/responsive-image-generator.vs-code"
   },
   "engines": {
     "vscode": "^1.104.0"
@@ -20,7 +20,10 @@
     "onLanguage:javascript",
     "onLanguage:typescript",
     "onLanguage:vue",
-    "onLanguage:angular"
+    "onLanguage:angular",
+    "onLanguage:blazor",
+    "onLanguage:csharp",
+    "onLanguage:cshtml"
   ],
   "main": "./extension.js",
   "contributes": {

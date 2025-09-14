@@ -19,14 +19,14 @@ const path = require('path');
  * @param {vscode.ExtensionContext} context - The extension context provided by VS Code.
  */
 function activate(context) {
-	console.log('Congratulations, your extension "responsive-image-generator" is now active!');
+	const extensionPackageJson = require(path.join(context.extensionPath, 'package.json'));
 
 	// Register the main command for generating responsive images
 	const disposable = vscode.commands.registerCommand('responsive-image-generator.generate', async function () {
 		try {
-			 const result = await promptForAllInputs();
-			 if (!result) return;
-			 const { imageUris, outputDir, sizesToGenerate } = result;
+			const result = await promptForAllInputs();
+			if (!result) return;
+			const { imageUris, outputDir, sizesToGenerate } = result;
 
 			// Show progress while processing images
 			await vscode.window.withProgress({
@@ -53,14 +53,14 @@ function activate(context) {
 	context.subscriptions.push(disposable);
 
 	// Supported languages for completion provider
-	const supportedLanguages = [
-		'html',
-		'markdown',
-		'javascript',
-		'typescript',
-		'vue',
-		'angular'
-	];
+	// Dynamically fetch supported languages from package.json activationEvents
+	let supportedLanguages = [];
+	if (extensionPackageJson.activationEvents) {
+		supportedLanguages = extensionPackageJson.activationEvents
+			.filter(event => event.startsWith('onLanguage:'))
+			.map(event => event.replace('onLanguage:', ''));
+	}
+	
 	const searchWord = 'responsive';
 	const triggerCharacters = ['<', '>', '!'];
 
@@ -110,7 +110,7 @@ function activate(context) {
 						.toFile(outputFile);
 					srcsetParts.push(`${outputFile} ${size}w`);
 				} catch (err) {
-					console.error(`Error processing ${imageUri.fsPath} for size ${size}:`, err);
+					vscode.window.showErrorMessage(`Error processing ${imageUri.fsPath} for size ${size}: ${err.message}`);
 				}
 			}
 		}
@@ -242,7 +242,7 @@ async function processImage(imagePath, outputDir, itemName, sizesToGenerate) {
 					.toFile(outputFile);
 				console.log(`Generated ${outputFile}`);
 			} catch (err) {
-				console.error(`Error processing ${imagePath} for size ${size}:`, err);
+				vscode.window.showErrorMessage(`Error processing ${imagePath} for size ${size}: ${err.message}`);
 			}
 		})
 	);
