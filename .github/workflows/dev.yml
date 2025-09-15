@@ -3,9 +3,7 @@ name: Publish Release
 on:
   push:
     branches:
-      - 'master'    # Triggers on pushes to the master branch
-    tags:
-      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+      - 'development'    # Triggers on pushes to the development branch
 
 jobs:
   build-and-release:
@@ -20,15 +18,16 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
         run: npm install
 
       - name: Package VS Code extension
         run: npx vsce package
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: '*.vsix'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
