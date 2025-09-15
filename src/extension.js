@@ -5,6 +5,8 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
+const config = vscode.workspace.getConfiguration('responsiveImageGenerator');
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 
@@ -60,7 +62,7 @@ function activate(context) {
 			.filter(event => event.startsWith('onLanguage:'))
 			.map(event => event.replace('onLanguage:', ''));
 	}
-	
+
 	const searchWord = 'responsive';
 	const triggerCharacters = ['<', '>', '!'];
 
@@ -105,10 +107,18 @@ function activate(context) {
 			for (const size of sizesToGenerate) {
 				const outputFile = path.join(outputDir, `${itemName}_${size}${path.extname(imageUri.fsPath)}`);
 				try {
+					// Resize and save image
 					await sharp(imageUri.fsPath)
 						.resize(size)
 						.toFile(outputFile);
-					srcsetParts.push(`${outputFile} ${size}w`);
+					// Use relative paths if configured
+					if(config.get('useRelativePaths')) {
+						const root = config.get('staticAssetsRoot') || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+						const relativeOutputFile = root ? `./${path.relative(root, outputFile)}` : outputFile;
+						srcsetParts.push(`${relativeOutputFile} ${size}w`);
+					} else {
+						srcsetParts.push(`${outputFile} ${size}w`);
+					}
 				} catch (err) {
 					vscode.window.showErrorMessage(`Error processing ${imageUri.fsPath} for size ${size}: ${err.message}`);
 				}
@@ -130,7 +140,7 @@ function activate(context) {
 				editor.insertSnippet(snippet, triggerStart);
 			});
 		}
-		vscode.window.showInformationMessage('Responsive image tag filled in!');
+		vscode.window.showInformationMessage('Add responsive image tag and generated images!');
 	}));
 }
 
@@ -187,16 +197,16 @@ async function promptForImageFiles() {
 }
 
 /**
- * Prompts the user to select an output directory, preferring 'wwwroot' if available.
+ * Prompts the user to select an output directory, preferring 'wwwroot' or 'public' if available.
  * @returns {Promise<string|undefined>} Path to selected output directory or undefined if cancelled.
  */
 async function promptForOutputDirectory() {
 	const workspaceFolders = vscode.workspace.workspaceFolders || [];
-	let wwwrootFolder = workspaceFolders.find(folder => folder.name.toLowerCase() === 'wwwroot');
-	let preselectUri = wwwrootFolder ? wwwrootFolder.uri : undefined;
+	let staticContentFolder = workspaceFolders.find(folder => (folder.name.toLowerCase() === 'wwwroot') || (folder.name.toLowerCase() === 'public'));
+	let preselectUri = staticContentFolder ? staticContentFolder.uri : undefined;
 
 	const folder = await vscode.window.showWorkspaceFolderPick({
-		placeHolder: 'Select output folder (wwwroot will be preselected if available)',
+		placeHolder: "Select output folder ('wwwroot' or 'public' will be preselected if available)",
 	});
 	if (folder) {
 		return folder.uri.fsPath;
@@ -212,7 +222,7 @@ async function promptForOutputDirectory() {
  * @returns {Promise<number[]|undefined>} Array of selected sizes or undefined if cancelled.
  */
 async function promptForSizes() {
-	const sizes = [320, 480, 640, 960, 1280, 1600, 1920, 2560, 3840, 5120, 7680];
+	const sizes = config.get('defaultSizes') || [320, 480, 768, 1024, 1280, 1600, 1920, 2560, 3840, 5120, 7680];
 	const selectedSizes = await vscode.window.showQuickPick(sizes.map(size => size.toString()), {
 		placeHolder: 'Select sizes to generate (you can select multiple)',
 		canPickMany: true

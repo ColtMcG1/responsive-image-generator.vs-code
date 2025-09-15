@@ -3,6 +3,10 @@
 
 Generate responsive image tags and assets directly from VS Code.
 
+
+https://github.com/user-attachments/assets/f0490cd2-be09-46e3-94b6-4702d7bd5cf9
+
+
 ## Features
 
 - Add a new responsive image tag using completion (type `<responsive_image_basic>` and select the completion).
@@ -24,7 +28,19 @@ Generate responsive image tags and assets directly from VS Code.
 
 ## Extension Settings
 
-This extension does not currently contribute any settings.
+You can customize the behavior of Responsive Image Generator using VS Code settings. Add these to your workspace or user `settings.json`:
+
+```(json)
+"responsiveImageGenerator.defaultSizes": [320, 480, 640, 960, 1280, 1600, 1920, 2560, 3840, 5120, 7680],
+"responsiveImageGenerator.useRelativePaths": true,
+"responsiveImageGenerator.staticAssetsRoot": ""
+```
+
+- **responsiveImageGenerator.defaultSizes**: List of image widths (in pixels) to generate by default.
+- **responsiveImageGenerator.useRelativePaths**: If true, image paths in the generated tag will be relative; if false, absolute paths are used.
+- **responsiveImageGenerator.staticAssetsRoot**: The base folder to use for relative paths in image tags. If left blank, the workspace root is used.
+
+To change these, open VS Code settings and search for "Responsive Image Generator" or edit your `settings.json` directly.
 
 ## Known Issues
 
@@ -38,9 +54,10 @@ This extension does not currently contribute any settings.
 
 - Added command for responsive image generation.
 - Added support for multiple languages and snippet insertion.
+- Added settings options for relative paths and public root folder.
 
 ---
 
 **Enjoy using Responsive Image Generator!**
 
-**(Catalyst.Responsive-Image-Generator)** - By [ColtMcG0](https://github.com/ColtMcG1)
+**(responsive-image-generator.vscode)** - By [ColtMcG0](https://github.com/ColtMcG1)
