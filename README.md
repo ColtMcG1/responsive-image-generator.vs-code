@@ -3,6 +3,10 @@
 
 Generate responsive image tags and assets directly from VS Code.
 
+
+https://github.com/user-attachments/assets/f0490cd2-be09-46e3-94b6-4702d7bd5cf9
+
+
 ## Features
 
 - Add a new responsive image tag using completion (type `<responsive_image_basic>` and select the completion).
