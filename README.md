@@ -3,8 +3,6 @@
 
 Generate responsive image tags and assets directly from VS Code.
 
-<video controls src="./assets/example.mp4" title="How to use Responsive Image Generator"  type="video/mp4"></video>
-
 ## Features
 
 - Add a new responsive image tag using completion (type `<responsive_image_basic>` and select the completion).
