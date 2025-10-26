@@ -32,32 +32,39 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.provider = void 0;
 const vscode = __importStar(require("vscode"));
-// Use dynamic import for package.json
+// Import package.json for activationEvents
 // @ts-ignore
-const extensionPackageJson = __importStar(require("../package.json"));
-// Supported languages for completion provider
-// Dynamically fetch supported languages from package.json activationEvents
-let supportedLanguages = [];
-if (extensionPackageJson.activationEvents) {
-    supportedLanguages = extensionPackageJson.activationEvents
-        .filter((event) => event.startsWith('onLanguage:'))
-        .map((event) => event.replace('onLanguage:', ''));
-}
+const package_json_1 = __importDefault(require("../package.json"));
+// Constants
 const searchWord = 'responsive';
 const triggerCharacters = ['<', '>', '!'];
-// Register completion provider for responsive image tag
+// Dynamically fetch supported languages from package.json activationEvents
+const supportedLanguages = package_json_1.default.activationEvents
+    ? package_json_1.default.activationEvents
+        .filter((event) => event.startsWith('onLanguage:'))
+        .map((event) => event.replace('onLanguage:', ''))
+    : [];
+/**
+ * Completion provider for responsive image tag.
+ */
 exports.provider = vscode.languages.registerCompletionItemProvider(supportedLanguages, {
     provideCompletionItems(document, position) {
-        const linePrefix = document.lineAt(position).text.split(new RegExp(`[${triggerCharacters.join('')}]`)).at(1)?.trim() || '';
+        // Extract the word before the cursor that may trigger completion
+        const line = document.lineAt(position).text;
+        const prefixMatch = line.slice(0, position.character).match(/(\w+)$/);
+        const linePrefix = prefixMatch ? prefixMatch[1] : '';
         if (searchWord.includes(linePrefix) && linePrefix.length > 0) {
             const completion = new vscode.CompletionItem('responsive_image_basic', vscode.CompletionItemKind.Snippet);
             completion.command = {
                 command: 'responsive-image-generator.fillResponsiveTag',
                 title: 'Fill Responsive Image Tag',
-                arguments: [document, position.translate(0, -(linePrefix.length + 1))]
+                arguments: [document, position.translate(0, -(linePrefix.length))]
             };
             return [completion];
         }

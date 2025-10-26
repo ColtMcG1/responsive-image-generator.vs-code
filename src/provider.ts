@@ -1,22 +1,24 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-// Use dynamic import for package.json
+
+// Import package.json for activationEvents
 // @ts-ignore
-import * as extensionPackageJson from '../package.json';
+import extensionPackageJson from '../package.json';
 
-// Supported languages for completion provider
-// Dynamically fetch supported languages from package.json activationEvents
-let supportedLanguages: string[] = [];
-if (extensionPackageJson.activationEvents) {
-    supportedLanguages = extensionPackageJson.activationEvents
-        .filter((event: string) => event.startsWith('onLanguage:'))
-        .map((event: string) => event.replace('onLanguage:', ''));
-}
-
+// Constants
 const searchWord = 'responsive';
 const triggerCharacters = ['<', '>', '!'];
 
-// Register completion provider for responsive image tag
+// Dynamically fetch supported languages from package.json activationEvents
+const supportedLanguages: string[] = extensionPackageJson.activationEvents
+    ? extensionPackageJson.activationEvents
+        .filter((event: string) => event.startsWith('onLanguage:'))
+        .map((event: string) => event.replace('onLanguage:', ''))
+    : [];
+
+/**
+ * Completion provider for responsive image tag.
+ */
 export const provider = vscode.languages.registerCompletionItemProvider(
     supportedLanguages,
     {
@@ -24,13 +26,20 @@ export const provider = vscode.languages.registerCompletionItemProvider(
             document: vscode.TextDocument,
             position: vscode.Position
         ): vscode.CompletionItem[] | undefined {
-            const linePrefix = document.lineAt(position).text.split(new RegExp(`[${triggerCharacters.join('')}]`)).at(1)?.trim() || '';
+            // Extract the word before the cursor that may trigger completion
+            const line = document.lineAt(position).text;
+            const prefixMatch = line.slice(0, position.character).match(/(\w+)$/);
+            const linePrefix = prefixMatch ? prefixMatch[1] : '';
+
             if (searchWord.includes(linePrefix) && linePrefix.length > 0) {
-                const completion = new vscode.CompletionItem('responsive_image_basic', vscode.CompletionItemKind.Snippet);
+                const completion = new vscode.CompletionItem(
+                    'responsive_image_basic',
+                    vscode.CompletionItemKind.Snippet
+                );
                 completion.command = {
                     command: 'responsive-image-generator.fillResponsiveTag',
                     title: 'Fill Responsive Image Tag',
-                    arguments: [document, position.translate(0, -(linePrefix.length + 1))]
+                    arguments: [document, position.translate(0, -(linePrefix.length))]
                 };
                 return [completion];
             }

@@ -39,11 +39,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.processImage = processImage;
 const vscode = __importStar(require("vscode"));
 const path = __importStar(require("path"));
+const fs = __importStar(require("fs"));
 const sharp_1 = __importDefault(require("sharp"));
 /**
  * Processes an image: resizes and saves to output directory with item name and size.
+ * Returns a summary of successes and errors.
  */
 async function processImage(imagePath, outputDir, itemName, sizesToGenerate) {
+    const result = { successes: [], errors: [] };
+    if (!fs.existsSync(imagePath)) {
+        const msg = `Input file does not exist: ${imagePath}`;
+        vscode.window.showErrorMessage(msg);
+        result.errors.push({ size: 0, error: msg });
+        return result;
+    }
     await Promise.all(sizesToGenerate.map(async (size) => {
         const outputFile = path.join(outputDir, `${itemName}_${size}${path.extname(imagePath)}`);
         try {
@@ -51,9 +60,17 @@ async function processImage(imagePath, outputDir, itemName, sizesToGenerate) {
                 .resize(size)
                 .toFile(outputFile);
             console.log(`Generated ${outputFile}`);
+            result.successes.push(outputFile);
         }
         catch (err) {
-            vscode.window.showErrorMessage(`Error processing ${imagePath} for size ${size}: ${err.message}`);
+            const errorMsg = `Error processing ${imagePath} for size ${size}: ${err.message}`;
+            console.error(errorMsg);
+            result.errors.push({ size, error: errorMsg });
         }
     }));
+    // Show a summary message if there were errors
+    if (result.errors.length > 0) {
+        vscode.window.showErrorMessage(`Some images failed to process: ${result.errors.map(e => `${e.size}px`).join(', ')}`);
+    }
+    return result;
 }

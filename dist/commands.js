@@ -43,21 +43,22 @@ const sharp_1 = __importDefault(require("sharp"));
 const prompts_1 = require("./prompts");
 const images_1 = require("./images");
 const extension_1 = require("./extension");
-exports.disposable = vscode.commands.registerCommand('responsive-image-generator.generate', async function () {
+/**
+ * Command: Generate responsive images
+ */
+exports.disposable = vscode.commands.registerCommand('responsive-image-generator.generate', async (resourceUri) => {
     try {
-        const result = await (0, prompts_1.promptForAllInputs)();
+        const result = await (0, prompts_1.promptForAllInputs)(resourceUri ? [resourceUri] : undefined);
         if (!result)
             return;
         const { imageUris, outputDir, sizesToGenerate } = result;
-        // Show progress while processing images
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: 'Generating responsive images...',
-            cancellable: false
+            cancellable: false,
         }, async (progress) => {
             progress.report({ message: 'Processing images...' });
-            // Process all images and sizes in parallel
-            await Promise.all(imageUris.map(imageUri => {
+            await Promise.all(imageUris.map((imageUri) => {
                 const itemName = path.basename(imageUri.fsPath, path.extname(imageUri.fsPath));
                 return (0, images_1.processImage)(imageUri.fsPath, outputDir, itemName, sizesToGenerate);
             }));
@@ -69,29 +70,30 @@ exports.disposable = vscode.commands.registerCommand('responsive-image-generator
         console.error(err);
     }
 });
+/**
+ * Command: Fill responsive image tag
+ */
 exports.fillResponsiveTagCommand = vscode.commands.registerCommand('responsive-image-generator.fillResponsiveTag', async (document, triggerStart) => {
-    const result = await (0, prompts_1.promptForAllInputs)();
+    const result = await (0, prompts_1.promptForAllInputs)(null);
     if (!result)
         return;
     const { imageUris, outputDir, sizesToGenerate } = result;
-    // Generate srcset string
     let srcsetParts = [];
     for (const imageUri of imageUris) {
         const itemName = path.basename(imageUri.fsPath, path.extname(imageUri.fsPath));
         for (const size of sizesToGenerate) {
             const outputFile = path.join(outputDir, `${itemName}_${size}${path.extname(imageUri.fsPath)}`);
             try {
-                // Resize and save image
                 await (0, sharp_1.default)(imageUri.fsPath)
                     .resize(size)
                     .toFile(outputFile);
                 // Use relative paths if configured
                 if (extension_1.config.get('useRelativePaths')) {
                     const rootValue = extension_1.config.get('staticAssetsRoot');
-                    const root = (typeof rootValue === 'string' && rootValue.length > 0)
+                    const root = typeof rootValue === 'string' && rootValue.length > 0
                         ? rootValue
                         : vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-                    const relativeOutputFile = (typeof root === 'string' && root.length > 0)
+                    const relativeOutputFile = typeof root === 'string' && root.length > 0
                         ? `./${path.relative(root, outputFile)}`
                         : outputFile;
                     srcsetParts.push(`${relativeOutputFile} ${size}w`);
@@ -106,18 +108,18 @@ exports.fillResponsiveTagCommand = vscode.commands.registerCommand('responsive-i
         }
     }
     const srcset = srcsetParts.join(', ');
-    // Generate sizes attribute
-    const sizes = sizesToGenerate.map((size) => `(max-width: ${size}px) ${size}px`).join(', ') + ', 100vw';
+    const sizes = sizesToGenerate
+        .map((size) => `(max-width: ${size}px) ${size}px`)
+        .join(', ') + ', 100vw';
     // Insert finished snippet, replacing the prefix
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const snippet = new vscode.SnippetString(`<img src="${srcsetParts[0]?.split(' ')[0] || ''}" srcset="${srcset}" sizes="${sizes}" alt="$1">`);
         const endPosition = triggerStart.translate(0, document.lineAt(triggerStart).text.length - triggerStart.character);
-        editor.edit(editBuilder => {
+        await editor.edit((editBuilder) => {
             editBuilder.delete(new vscode.Range(triggerStart, endPosition));
-        }).then(() => {
-            editor.insertSnippet(snippet, triggerStart);
         });
+        editor.insertSnippet(snippet, triggerStart);
     }
-    vscode.window.showInformationMessage('Add responsive image tag and generated images!');
+    vscode.window.showInformationMessage('Added responsive image tag and generated images!');
 });
