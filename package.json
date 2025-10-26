@@ -25,7 +25,7 @@
     "onLanguage:csharp",
     "onLanguage:cshtml"
   ],
-  "main": "./src/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -39,8 +39,22 @@
       "properties": {
         "responsiveImageGenerator.defaultSizes": {
           "type": "array",
-          "items": { "type": "number" },
-          "default": [320, 480, 640, 960, 1280, 1600, 1920, 2560, 3840, 5120, 7680],
+          "items": {
+            "type": "number"
+          },
+          "default": [
+            320,
+            480,
+            640,
+            960,
+            1280,
+            1600,
+            1920,
+            2560,
+            3840,
+            5120,
+            7680
+          ],
           "description": "Default image sizes to generate."
         },
         "responsiveImageGenerator.useRelativePaths": {
@@ -57,8 +71,17 @@
     }
   },
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
     "test": "vscode-test"
   },
   "devDependencies": {
@@ -70,6 +93,7 @@
     "eslint": "^9.34.0"
   },
   "dependencies": {
-    "sharp": "^0.34.3"
+    "sharp": "^0.34.3",
+    "typescript": "^5.9.2"
   }
 }
