@@ -10,6 +10,7 @@ https://github.com/user-attachments/assets/f0490cd2-be09-46e3-94b6-4702d7bd5cf9
 ## Features
 
 - Add a new responsive image tag using completion (type `<responsive_image_basic>` and select the completion).
+- Generate responsive images directly from the file explorer by right-clicking on image files.
 - Prompts for image file(s), output directory, and sizes.
 - Automatically generates resized images and fills in the `srcset` and `sizes` attributes.
 - Works in HTML, Markdown, JavaScript, TypeScript, Vue, and Angular files.
@@ -21,10 +22,19 @@ https://github.com/user-attachments/assets/f0490cd2-be09-46e3-94b6-4702d7bd5cf9
 
 ## Usage
 
+### Method 1: Using Completion in Editor
+
 1. Type `<responsive_image_basic>` in a supported file and trigger completion (Ctrl+Space).
 2. Select the completion item.
 3. Follow the prompts to select image(s), output folder, and sizes.
 4. The extension generates responsive images and inserts a complete `<img>` tag with `srcset` and `sizes`.
+
+### Method 2: Using File Explorer Context Menu
+
+1. In the VS Code Explorer, right-click on one or more image files (PNG, JPG, JPEG, GIF, BMP, WEBP, or SVG).
+2. Select "Generate Responsive Images" from the context menu.
+3. Follow the prompts to select the output folder and sizes.
+4. The extension generates responsive images in the selected output directory.
 
 ## Extension Settings
 

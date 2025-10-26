@@ -31,8 +31,21 @@
       {
         "command": "responsive-image-generator.generate",
         "title": "Generate Responsive Image"
+      },
+      {
+        "command": "responsive-image-generator.generateFromExplorer",
+        "title": "Generate Responsive Images"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "responsive-image-generator.generateFromExplorer",
+          "when": "resourceLangId == image || resourceExtname =~ /\\.(png|jpg|jpeg|gif|bmp|webp|svg)$/i",
+          "group": "responsive-image-generator"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Responsive Image Generator",

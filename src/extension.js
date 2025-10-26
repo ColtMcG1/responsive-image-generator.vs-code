@@ -54,6 +54,60 @@ function activate(context) {
 	});
 	context.subscriptions.push(disposable);
 
+	// Register command for context menu in file explorer
+	const explorerDisposable = vscode.commands.registerCommand('responsive-image-generator.generateFromExplorer', async function (uri, uris) {
+		try {
+			// If multiple files are selected, use uris, otherwise use single uri
+			const imageUris = uris && uris.length > 0 ? uris : (uri ? [uri] : []);
+			
+			if (imageUris.length === 0) {
+				vscode.window.showWarningMessage('No image files selected.');
+				return;
+			}
+
+			// Prompt for output directory
+			const outputDir = await promptForOutputDirectory();
+			if (!outputDir) {
+				vscode.window.showWarningMessage('No output directory selected. Operation cancelled.');
+				return;
+			}
+
+			// Prompt for sizes
+			const sizesToGenerate = await promptForSizes();
+			if (!sizesToGenerate || sizesToGenerate.length === 0) {
+				vscode.window.showWarningMessage('No sizes selected. Operation cancelled.');
+				return;
+			}
+
+			// Create output directory if it doesn't exist
+			if (!fs.existsSync(outputDir)) {
+				fs.mkdirSync(outputDir, { recursive: true });
+			}
+
+			// Show progress while processing images
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: 'Generating responsive images...',
+				cancellable: false
+			}, async (progress) => {
+				progress.report({ message: 'Processing images...' });
+				// Process all images and sizes in parallel
+				await Promise.all(
+					imageUris.map(imageUri => {
+						const itemName = path.basename(imageUri.fsPath, path.extname(imageUri.fsPath));
+						return processImage(imageUri.fsPath, outputDir, itemName, sizesToGenerate);
+					})
+				);
+			});
+
+			vscode.window.showInformationMessage('Responsive images generated successfully!');
+		} catch (err) {
+			vscode.window.showErrorMessage(`Error: ${err.message}`);
+			console.error(err);
+		}
+	});
+	context.subscriptions.push(explorerDisposable);
+
 	// Supported languages for completion provider
 	// Dynamically fetch supported languages from package.json activationEvents
 	let supportedLanguages = [];
