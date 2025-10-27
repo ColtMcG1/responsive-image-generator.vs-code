@@ -37,8 +37,9 @@ export async function promptForAllInputs(imageUris: vscode.Uri[] | undefined | n
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
         }
-    } catch (err: any) {
-        vscode.window.showErrorMessage(`Failed to create output directory: ${err.message}`);
+    } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        vscode.window.showErrorMessage(`Failed to create output directory: ${error.message}`);
         return undefined;
     }
 

@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 // Import package.json for activationEvents
-// @ts-ignore
+// @ts-expect-error: Ignore import error for JSON file
 import extensionPackageJson from '../package.json';
 
 // Constants

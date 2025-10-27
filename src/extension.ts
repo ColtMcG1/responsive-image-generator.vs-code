@@ -3,7 +3,6 @@
 import * as vscode from 'vscode';
 import * as commands from './commands';
 import * as provider from './provider';
-import * as path from 'path';
 
 export const config = vscode.workspace.getConfiguration('responsiveImageGenerator');
 
@@ -12,9 +11,6 @@ export const config = vscode.workspace.getConfiguration('responsiveImageGenerato
  * Registers commands and completion providers.
  */
 export function activate(context: vscode.ExtensionContext) {
-	// Use dynamic import for package.json
-	// @ts-ignore
-	const extensionPackageJson = require(path.join(context.extensionPath, 'package.json'));
 
 	// Register the main command for generating responsive images
 	context.subscriptions.push(commands.disposable);

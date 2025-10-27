@@ -39,8 +39,9 @@ export async function processImage(
                     .toFile(outputFile);
                 console.log(`Generated ${outputFile}`);
                 result.successes.push(outputFile);
-            } catch (err: any) {
-                const errorMsg = `Error processing ${imagePath} for size ${size}: ${err.message}`;
+            } catch (err: unknown) {
+                const error = err instanceof Error ? err : new Error(String(err));
+                const errorMsg = `Error processing ${imagePath} for size ${size}: ${error.message}`;
                 console.error(errorMsg);
                 result.errors.push({ size, error: errorMsg });
             }

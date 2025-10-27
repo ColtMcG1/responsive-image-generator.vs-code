@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import sharp from 'sharp';
-import { promptForAllInputs, promptForImageFiles } from './prompts';
+import { promptForAllInputs } from './prompts';
 import { processImage, ProcessImageResult } from './images';
 import { config } from './extension';
 
@@ -23,7 +23,7 @@ export const disposable = vscode.commands.registerCommand(
             if (!result) return;
 
             const { imageUris, outputDir, sizesToGenerate } = result;
-            let allErrors: string[] = [];
+            const allErrors: string[] = [];
 
             await vscode.window.withProgress(
                 {
@@ -67,9 +67,10 @@ export const disposable = vscode.commands.registerCommand(
                     'Responsive images generated successfully!'
                 );
             }
-        } catch (err: any) {
-            vscode.window.showErrorMessage(`Error: ${err.message}`);
-            console.error(err);
+        } catch (err: unknown) {
+            const error = err instanceof Error ? err : new Error(String(err));
+            vscode.window.showErrorMessage(`Error: ${error.message}`);
+            console.error(error);
         }
     }
 );
@@ -87,8 +88,8 @@ export const fillResponsiveTagCommand = vscode.commands.registerCommand(
         if (!result) return;
 
         const { imageUris, outputDir, sizesToGenerate } = result;
-        let srcsetParts: string[] = [];
-        let allErrors: string[] = [];
+        const srcsetParts: string[] = [];
+        const allErrors: string[] = [];
 
         for (const imageUri of imageUris) {
             const itemName = path.basename(
@@ -117,9 +118,10 @@ export const fillResponsiveTagCommand = vscode.commands.registerCommand(
                     } else {
                         srcsetParts.push(`${outputFile} ${size}w`);
                     }
-                } catch (err: any) {
+                } catch (err: unknown) {
+                    const error = err instanceof Error ? err : new Error(String(err));
                     allErrors.push(
-                        `File: ${imageUri.fsPath}, Size: ${size}px, Error: ${err.message}`
+                        `File: ${imageUri.fsPath}, Size: ${size}px, Error: ${error.message}`
                     );
                 }
             }
