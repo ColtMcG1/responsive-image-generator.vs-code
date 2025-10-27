@@ -2,8 +2,9 @@
   "name": "responsive-image-generator",
   "displayName": "Responsive Image Generator",
   "description": "Generate responsive images in multiple sizes for web development. Works inline in the text editor.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "coltonmcgraw",
+  "icon": "media/icon-light.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/ColtMcG0/responsive-image-generator.vs-code"
@@ -25,22 +26,57 @@
     "onLanguage:csharp",
     "onLanguage:cshtml"
   ],
-  "main": "./src/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "responsive-image-generator.generate",
-        "title": "Generate Responsive Image"
+        "title": "Generate Responsive Image",
+        "category": "Responsive Image",
+        "icon": {
+          "light": "media/icon-dark.svg",
+          "dark": "media/icon-light.svg"
+        }
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "responsive-image-generator.generate",
+          "when": "resourceExtname =~ /\\.(png|jpg|jpeg|gif|bmp|webp|svg)$/i",
+          "group": "7_modification"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "responsive-image-generator.generate",
+          "when": "resourceExtname =~ /\\.(png|jpg|jpeg|gif|bmp|webp|svg)$/i",
+          "group": "navigation"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Responsive Image Generator",
       "properties": {
         "responsiveImageGenerator.defaultSizes": {
           "type": "array",
-          "items": { "type": "number" },
-          "default": [320, 480, 640, 960, 1280, 1600, 1920, 2560, 3840, 5120, 7680],
+          "items": {
+            "type": "number"
+          },
+          "default": [
+            320,
+            480,
+            640,
+            960,
+            1280,
+            1600,
+            1920,
+            2560,
+            3840,
+            5120,
+            7680
+          ],
           "description": "Default image sizes to generate."
         },
         "responsiveImageGenerator.useRelativePaths": {
@@ -57,19 +93,28 @@
     }
   },
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npm run compile",
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@eslint/js": "^9.38.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/vscode": "^1.104.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
-    "eslint": "^9.34.0"
+    "eslint": "^9.38.0",
+    "globals": "^16.4.0",
+    "jiti": "^2.6.1",
+    "typescript-eslint": "^8.46.2"
   },
   "dependencies": {
-    "sharp": "^0.34.3"
+    "sharp": "^0.34.3",
+    "typescript": "^5.9.2"
   }
 }
