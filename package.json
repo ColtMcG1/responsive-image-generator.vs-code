@@ -16,15 +16,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:html",
-    "onLanguage:markdown",
-    "onLanguage:javascript",
-    "onLanguage:typescript",
-    "onLanguage:vue",
-    "onLanguage:angular",
-    "onLanguage:blazor",
-    "onLanguage:csharp",
-    "onLanguage:cshtml"
   ],
   "main": "./dist/extension.js",
   "contributes": {

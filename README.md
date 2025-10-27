@@ -50,14 +50,23 @@ To change these, open VS Code settings and search for "Responsive Image Generato
 
 ## Release Notes
 
+### 1.1.0
+
+- Source refactoring and code cleanup.
+- Added a command to explorer context menu for generating responsive images from selected files.
+- Added icon to editor title menu when an image file is open.
+- Added contributors list.
+
 ### 1.0.0
 
 - Added command for responsive image generation.
 - Added support for multiple languages and snippet insertion.
 - Added settings options for relative paths and public root folder.
 
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=ColtMcG1/responsive-image-generator.vs-code)](https://github.com/ColtMcG1/responsive-image-generator.vs-code/graphs/contributors)
+
 ---
 
 **Enjoy using Responsive Image Generator!**
-
-**(responsive-image-generator.vscode)** - By [ColtMcG0](https://github.com/ColtMcG1)
