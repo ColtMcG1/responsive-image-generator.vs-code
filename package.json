@@ -4,6 +4,7 @@
   "description": "Generate responsive images in multiple sizes for web development. Works inline in the text editor.",
   "version": "1.0.0",
   "publisher": "coltonmcgraw",
+  "icon": "media/icon-light.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/ColtMcG0/responsive-image-generator.vs-code"
@@ -30,7 +31,12 @@
     "commands": [
       {
         "command": "responsive-image-generator.generate",
-        "title": "Generate Responsive Image"
+        "title": "Generate Responsive Image",
+        "category": "Responsive Image",
+        "icon": {
+          "light": "media/icon-dark.svg",
+          "dark": "media/icon-light.svg"
+        }
       }
     ],
     "menus": {
@@ -39,6 +45,13 @@
           "command": "responsive-image-generator.generate",
           "when": "resourceExtname =~ /\\.(png|jpg|jpeg|gif|bmp|webp|svg)$/i",
           "group": "7_modification"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "responsive-image-generator.generate",
+          "when": "resourceExtname =~ /\\.(png|jpg|jpeg|gif|bmp|webp|svg)$/i",
+          "group": "navigation"
         }
       ]
     },

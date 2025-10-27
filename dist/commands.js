@@ -44,6 +44,12 @@ const prompts_1 = require("./prompts");
 const images_1 = require("./images");
 const extension_1 = require("./extension");
 /**
+ * Helper to generate output file name.
+ */
+function getOutputFileName(imagePath, outputDir, itemName, size) {
+    return path.join(outputDir, `${itemName}_${size}${path.extname(imagePath)}`);
+}
+/**
  * Command: Generate responsive images
  */
 exports.disposable = vscode.commands.registerCommand('responsive-image-generator.generate', async (resourceUri) => {
@@ -52,18 +58,30 @@ exports.disposable = vscode.commands.registerCommand('responsive-image-generator
         if (!result)
             return;
         const { imageUris, outputDir, sizesToGenerate } = result;
+        let allErrors = [];
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: 'Generating responsive images...',
             cancellable: false,
         }, async (progress) => {
-            progress.report({ message: 'Processing images...' });
-            await Promise.all(imageUris.map((imageUri) => {
+            let completed = 0;
+            const total = imageUris.length;
+            for (const imageUri of imageUris) {
                 const itemName = path.basename(imageUri.fsPath, path.extname(imageUri.fsPath));
-                return (0, images_1.processImage)(imageUri.fsPath, outputDir, itemName, sizesToGenerate);
-            }));
+                const imageResult = await (0, images_1.processImage)(imageUri.fsPath, outputDir, itemName, sizesToGenerate);
+                if (imageResult.errors.length > 0) {
+                    allErrors.push(...imageResult.errors.map(e => `File: ${imageUri.fsPath}, Size: ${e.size}px, Error: ${e.error}`));
+                }
+                completed++;
+                progress.report({ message: `Processed ${completed} of ${total}` });
+            }
         });
-        vscode.window.showInformationMessage('Responsive images generated successfully!');
+        if (allErrors.length > 0) {
+            vscode.window.showErrorMessage(`Some images failed to process:\n${allErrors.join('\n')}`);
+        }
+        else {
+            vscode.window.showInformationMessage('Responsive images generated successfully!');
+        }
     }
     catch (err) {
         vscode.window.showErrorMessage(`Error: ${err.message}`);
@@ -79,10 +97,11 @@ exports.fillResponsiveTagCommand = vscode.commands.registerCommand('responsive-i
         return;
     const { imageUris, outputDir, sizesToGenerate } = result;
     let srcsetParts = [];
+    let allErrors = [];
     for (const imageUri of imageUris) {
         const itemName = path.basename(imageUri.fsPath, path.extname(imageUri.fsPath));
         for (const size of sizesToGenerate) {
-            const outputFile = path.join(outputDir, `${itemName}_${size}${path.extname(imageUri.fsPath)}`);
+            const outputFile = getOutputFileName(imageUri.fsPath, outputDir, itemName, size);
             try {
                 await (0, sharp_1.default)(imageUri.fsPath)
                     .resize(size)
@@ -103,7 +122,7 @@ exports.fillResponsiveTagCommand = vscode.commands.registerCommand('responsive-i
                 }
             }
             catch (err) {
-                vscode.window.showErrorMessage(`Error processing ${imageUri.fsPath} for size ${size}: ${err.message}`);
+                allErrors.push(`File: ${imageUri.fsPath}, Size: ${size}px, Error: ${err.message}`);
             }
         }
     }
@@ -121,5 +140,10 @@ exports.fillResponsiveTagCommand = vscode.commands.registerCommand('responsive-i
         });
         editor.insertSnippet(snippet, triggerStart);
     }
-    vscode.window.showInformationMessage('Added responsive image tag and generated images!');
+    if (allErrors.length > 0) {
+        vscode.window.showErrorMessage(`Some images failed to process:\n${allErrors.join('\n')}`);
+    }
+    else {
+        vscode.window.showInformationMessage('Added responsive image tag and generated images!');
+    }
 });
